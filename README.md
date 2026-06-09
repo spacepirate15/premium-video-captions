@@ -4,6 +4,24 @@ Premium Video Captions is a small local workspace for turning vertical short-for
 
 The repository is designed as a reusable template: drop raw videos into `01-raw-videos/`, run the caption script, and collect rendered MP4s from `02-processed-videos/`.
 
+## Quick Install
+
+Recommended clone-based install:
+
+```bash
+git clone https://github.com/spacepirate15/premium-video-captions.git
+cd premium-video-captions
+bash scripts/setup.sh
+```
+
+One-command bootstrap for macOS/Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/spacepirate15/premium-video-captions/main/scripts/install.sh | bash
+```
+
+The installer clones the repository into `$HOME/premium-video-captions`, creates a local `.venv`, installs Python dependencies, checks FFmpeg/FFprobe, creates local artifact folders, and runs smoke tests. It does not use `sudo`.
+
 ## What It Does
 
 - Transcribes speech into word-level timestamps with Whisper.
@@ -93,10 +111,17 @@ That design avoids common caption defects from layered `drawtext` filters: clipp
 Run the focused unit tests:
 
 ```bash
-python -m pytest
+python -m unittest discover -s 04-scripts -p "test_*.py"
+python scripts/check_repo_hygiene.py
 ```
 
 These tests cover caption style registration, word timing, emoji rule selection, and OpusClip-style event grouping. They do not render a full video; full render verification still requires inspecting extracted frames from an actual output MP4.
+
+## Contributing
+
+Improvements are welcome through pull requests. Useful changes include better font discovery, more caption styles, faster rendering, safer setup, and visual regression tooling.
+
+Every pull request should pass CI and include reproducible evidence. Rendering changes need human review because tests can prove logic, but they cannot fully judge whether a caption style looks polished.
 
 ## Public-Repo Hygiene
 
