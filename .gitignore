@@ -1,0 +1,42 @@
+.DS_Store
+.AppleDouble/
+.LSOverride
+
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Local input/output media. Keep the folders, not private videos.
+01-raw-videos/*
+!01-raw-videos/.gitkeep
+02-processed-videos/*
+!02-processed-videos/.gitkeep
+
+# Generated logs and transcripts may contain private spoken content.
+logs/*
+!logs/.gitkeep
+!logs/transcripts/
+logs/transcripts/*
+!logs/transcripts/.gitkeep
+
+# Downloaded/generated assets and subtitles.
+03-assets/emojis/*
+!03-assets/emojis/.gitkeep
+04-scripts/temp_subtitles.ass
+
+# Local agent install state.
+skills-lock.json
+.agents/skills/ffmpeg/
+
+*.log

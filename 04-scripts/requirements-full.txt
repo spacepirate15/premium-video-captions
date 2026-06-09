@@ -1,0 +1,6 @@
+faster-whisper
+whisper-timestamped
+openai-whisper
+torch
+Pillow
+imageio-ffmpeg
