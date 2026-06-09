@@ -46,7 +46,7 @@ The installer clones the repository into `$HOME/premium-video-captions`, creates
 
 ## Requirements
 
-- Python 3.11 or newer
+- Python 3.11, 3.12, or 3.13
 - FFmpeg and FFprobe
 - A 1080x1920 source video for the current premium renderer
 
@@ -54,7 +54,7 @@ On macOS:
 
 ```bash
 brew install ffmpeg
-python3 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r 04-scripts/requirements.txt

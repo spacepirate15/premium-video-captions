@@ -14,6 +14,9 @@ checks FFmpeg/FFprobe, creates local artifact folders, and runs smoke tests.
 Environment:
   PYTHON=/path/to/python    Override Python interpreter
   VENV_DIR=/path/to/venv    Override virtual environment directory
+
+Options:
+  --print-python            Print the selected compatible Python and exit
 USAGE
 }
 
@@ -32,23 +35,58 @@ need_command() {
   fi
 }
 
-if [[ -n "${PYTHON:-}" ]]; then
-  PYTHON_BIN="$PYTHON"
-else
-  need_command "python3" "Install Python 3.11 or newer."
-  PYTHON_BIN="$(command -v python3)"
+is_supported_python() {
+  "$1" - <<'PY' >/dev/null 2>&1
+import sys
+
+version = sys.version_info
+raise SystemExit(0 if (version.major, version.minor) >= (3, 11) and version.major == 3 and version.minor < 14 else 1)
+PY
+}
+
+select_python() {
+  if [[ -n "${PYTHON:-}" ]]; then
+    if is_supported_python "$PYTHON"; then
+      printf '%s\n' "$PYTHON"
+      return 0
+    fi
+    echo "PYTHON points to an unsupported interpreter. Use Python 3.11, 3.12, or 3.13." >&2
+    return 1
+  fi
+
+  local candidate
+  for candidate in python3.12 python3.11 python3.13 python3; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      local path
+      path="$(command -v "$candidate")"
+      if is_supported_python "$path"; then
+        printf '%s\n' "$path"
+        return 0
+      fi
+    fi
+  done
+
+  echo "Could not find Python 3.11, 3.12, or 3.13." >&2
+  echo "Install one of those versions, or set PYTHON=/path/to/python." >&2
+  return 1
+}
+
+PYTHON_BIN="$(select_python)"
+
+if [[ "${1:-}" == "--print-python" ]]; then
+  printf '%s\n' "$PYTHON_BIN"
+  exit 0
 fi
 
 need_command "git" "Install Git."
 need_command "ffmpeg" "Install FFmpeg. macOS: brew install ffmpeg"
 need_command "ffprobe" "Install FFmpeg/FFprobe. macOS: brew install ffmpeg"
 
-"$PYTHON_BIN" - <<'PY'
-import sys
-
-if sys.version_info < (3, 11):
-    raise SystemExit("Python 3.11 or newer is required.")
-PY
+if [[ -x "$VENV_DIR/bin/python" ]] && ! is_supported_python "$VENV_DIR/bin/python"; then
+  echo "Existing virtual environment uses unsupported Python: $VENV_DIR" >&2
+  echo "Remove it or choose a different VENV_DIR before running setup again." >&2
+  exit 1
+fi
 
 "$PYTHON_BIN" -m venv "$VENV_DIR"
 # shellcheck disable=SC1091
